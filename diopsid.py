@@ -96,11 +96,27 @@ display_width and display_height determine the size of each camera pane in the w
 Default 1920x1080
 """
 
+camera_width = 1920
+camera_height = 1080
+
+center_x = camera_width // 2
+center_y = camera_height // 2
+
+def read_pixel(frame, x, y):   
+    return frame[y, x]
+
+window_width = 4 # (pixels)
+window_height = 4 # (pixels)
+
+scope_width = 300
+scope_height = 300
+
+epipolar_lines = camera_height // window_height
 
 def gstreamer_pipeline(
     sensor_id=0,
-    capture_width=1920,
-    capture_height=1080,
+    capture_width=camera_width,
+    capture_height=camera_height,
     display_width=1920,
     display_height=1080,
     framerate=30,
@@ -125,14 +141,15 @@ def gstreamer_pipeline(
     )
 
 
+
 def run_cameras():
     window_title = "Dual CSI Cameras"
     left_camera = CSI_Camera()
     left_camera.open(
         gstreamer_pipeline(
             sensor_id=0,
-            capture_width=1920,
-            capture_height=1080,
+            capture_width=camera_width,
+            capture_height=camera_height,
             flip_method=0,
             display_width=960,
             display_height=540,
@@ -144,8 +161,8 @@ def run_cameras():
     right_camera.open(
         gstreamer_pipeline(
             sensor_id=1,
-            capture_width=1920,
-            capture_height=1080,
+            capture_width=camera_width,
+            capture_height=camera_height,
             flip_method=0,
             display_width=960,
             display_height=540,
@@ -163,6 +180,11 @@ def run_cameras():
                 _, right_image = right_camera.read()
                 # Use numpy to place images next to each other
                 camera_images = np.hstack((left_image, right_image)) 
+                
+                cv2.rectangle(left_image, (center_x, center_y), (center_x + scope_width//2, center_y + scope_height//2), (255, 0, 0), 8)
+                cv2.rectangle(right_image, (center_x, center_y), (center_x + scope_width//2, center_y + scope_height//2), (255, 0, 0), 8)
+                
+                
                 # Check to see if the user closed the window
                 # Under GTK+ (Jetson Default), WND_PROP_VISIBLE does not work correctly. Under Qt it does
                 # GTK - Substitute WND_PROP_AUTOSIZE to detect if window has been closed by user

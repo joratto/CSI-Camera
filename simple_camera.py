@@ -14,10 +14,13 @@ display_width and display_height determine the size of each camera pane in the w
 Default 1920x1080 displayd in a 1/4 size window
 """
 
+camera_width = 1920
+camera_height = 1080
+
 def gstreamer_pipeline(
     sensor_id=0,
-    capture_width=1920,
-    capture_height=1080,
+    capture_width=camera_width,
+    capture_height=camera_height,
     display_width=960,
     display_height=540,
     framerate=30,
@@ -41,6 +44,13 @@ def gstreamer_pipeline(
         )
     )
 
+def read_pixel(frame, x, y):   
+    return frame[y, x]
+
+window_width = 4 # (pixels)
+window_height = 4 # (pixels)
+
+epipolar_lines = camera_height // window_height
 
 def show_camera():
     window_title = "CSI Camera"
