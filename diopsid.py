@@ -105,20 +105,72 @@ center_y = camera_height // 2
 def read_pixel(frame, x, y):   
     return frame[y, x]
 
-window_width = 4 # (pixels)
-window_height = 4 # (pixels)
+window_width = 30 # (pixels)
+window_height = 30 # (pixels)
 
-scope_width = 300
-scope_height = 300
+scope_width = 800
+scope_height = 800
+
+scope_xlim = (center_x - scope_width//2, center_x + scope_width//2)
+scope_ylim = (center_y - scope_height//2, center_y + scope_height//2)
 
 epipolar_lines = camera_height // window_height
+
+# display stuff only
+screen_width = 500
+screen_height = 500
+screen_ratio = (screen_width//camera_width, screen_height//camera_height)
+
+def normalise(window):
+    # how to normalise an individual window
+    w, h = window.shape
+    sumsquares = 0
+    for wi in range(w):
+        for hi in range(h):
+            sumsquares += window[wi, hi]**2
+    return window / sumsquares
+
+def get_SSD(left_window, right_window):
+    # where left_window and right_window are NxM arrays of pixels,
+    # and N is window_width and M is window_height.
+
+    w, h = left_window.shape
+    if (w, h) != right_window.shape:
+        raise ValueError("Left and right windows must have the same shape")
+    
+    # First normalise (doing this double-counts a lot of pixels compared to normalising the whole image in one go, but it might make it easier to pick out patterns??):
+    
+    left = normalise(left_window)
+    right = normalise(right_window)
+    
+    difference = left - right
+
+    ssd = 0
+    for wi in range(w):
+        for hi in range(h):
+            ssd += difference[wi, hi]**2
+
+    return ssd
+
+
+
+    
+    left_sumsquares = left_sumsquares / (w * h)
+    right_sumsquares = right_sumsquares / (w * h)
+    
+
+    # Normalise:
+    left_window = left_window / 255.0
+    right_window = right_window / 255.0
+    
+
 
 def gstreamer_pipeline(
     sensor_id=0,
     capture_width=camera_width,
     capture_height=camera_height,
-    display_width=1920,
-    display_height=1080,
+    display_width=screen_width,
+    display_height=screen_height,
     framerate=30,
     flip_method=0,
 ):
@@ -151,8 +203,8 @@ def run_cameras():
             capture_width=camera_width,
             capture_height=camera_height,
             flip_method=0,
-            display_width=960,
-            display_height=540,
+            display_width=screen_width,
+            display_height=screen_height,
         )
     )
     left_camera.start()
@@ -164,8 +216,8 @@ def run_cameras():
             capture_width=camera_width,
             capture_height=camera_height,
             flip_method=0,
-            display_width=960,
-            display_height=540,
+            display_width=screen_width,
+            display_height=screen_height,
         )
     )
     right_camera.start()
@@ -181,8 +233,11 @@ def run_cameras():
                 # Use numpy to place images next to each other
                 camera_images = np.hstack((left_image, right_image)) 
                 
-                cv2.rectangle(left_image, (center_x, center_y), (center_x + scope_width//2, center_y + scope_height//2), (255, 0, 0), 8)
-                cv2.rectangle(right_image, (center_x, center_y), (center_x + scope_width//2, center_y + scope_height//2), (255, 0, 0), 8)
+                cv2.rectangle(left_image, (scope_xlim[0]*screen_ratio[0], scope_ylim[0]*screen_ratio[1]), (scope_xlim[1]*screen_ratio[0], scope_ylim[1]*screen_ratio[1]), (255, 0, 0), 8)
+                cv2.rectangle(right_image, (scope_xlim[0]*screen_ratio[0], scope_ylim[0]*screen_ratio[1]), (scope_xlim[1]*screen_ratio[0], scope_ylim[1]*screen_ratio[1]), (255, 0, 0), 8)
+
+                ssd = get_SSD(left_window, right_window)
+                print(ssd)
                 
                 
                 # Check to see if the user closed the window
