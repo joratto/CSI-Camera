@@ -121,7 +121,7 @@ columns = scope_width // window_width
 # display stuff only
 screen_width = 1920
 screen_height = 1080
-screen_ratio = (screen_width//camera_width, screen_height//camera_height)
+screen_ratio = (screen_width/camera_width, screen_height/camera_height)
 
 def read_pixel(frame, x, y):   
     return frame[y, x]
@@ -130,7 +130,7 @@ def read_window(frame, x_left, y_top, window_dims=(window_width, window_height))
     window = np.zeros(window_dims)
     for x in range(x_left, x_left + window_dims[0]):
         for y in range(y_top - window_dims[1], y_top):
-            window[x][y] = read_pixel(frame, x, y)
+            window[x-x_left, y-y_top+window_dims[1]] = read_pixel(frame, x, y)
     return window
 
 def normalise(window):
@@ -166,7 +166,7 @@ def get_SSD(template_window, comparison_window):
 
     return ssd
 
-def scan_epipolar_line(left_image, right_image, template_top_left, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, yshift left_first=True):
+def scan_epipolar_line(left_image, right_image, template_top_left, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=True):
     # window_top_left is [x, y] of the top left corner of the window providing the reference
     
     if left_first:
@@ -190,6 +190,10 @@ def scan_epipolar_line(left_image, right_image, template_top_left, window_dims=(
     return ssd_array, x_range
 
 def get_distance(ssd_array, x_range, interocular_distance, pixel_angular_width):
+    # Check if ssd_array is empty
+    if not ssd_array:
+        return 0, 0
+    
     ssd_average = np.mean(ssd_array)
     ssd_stdev = np.std(ssd_array)
     ssd_threshold = ssd_average + 3*ssd_stdev # adding a "noise floor"
@@ -206,7 +210,7 @@ def get_distance(ssd_array, x_range, interocular_distance, pixel_angular_width):
     
 def get_distance_matrix(left_image, right_image, interocular_distance, pixel_angular_width, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, yshift=0, left_first=True):
     distance_matrix = np.zeros((epipolar_lines, columns, 5))
-    template_top_left = (scope_xlim[0], scope_ylim[0]+window_dims[1])
+    template_top_left = [scope_xlim[0], scope_ylim[0]+window_dims[1]]
     for line in range(epipolar_lines):
         for column in range(columns):
             ssd_array, x_range = scan_epipolar_line(left_image, right_image, template_top_left, window_dims=window_dims, scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=left_first)
@@ -302,15 +306,15 @@ def run_cameras():
                 camera_images = np.hstack((left_image, right_image)) 
                 
                 # Draw scope boxes
-                cv2.rectangle(left_image, (scope_xlim[0]*screen_ratio[0], scope_ylim[0]*screen_ratio[1]), (scope_xlim[1]*screen_ratio[0], scope_ylim[1]*screen_ratio[1]), (255, 0, 0), 8)
-                cv2.rectangle(right_image, (scope_xlim[0]*screen_ratio[0], scope_ylim[0]*screen_ratio[1]), (scope_xlim[1]*screen_ratio[0], scope_ylim[1]*screen_ratio[1]), (255, 0, 0), 8)
+                cv2.rectangle(left_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
+                cv2.rectangle(right_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
 
                 # Get distance matrix
-                distance_matrix = get_distance_matrix(left_image, right_image, interocular_distance, pixel_angular_width, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=True)
+                # distance_matrix = get_distance_matrix(left_image, right_image, interocular_distance, pixel_angular_width, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=True)
 
                 # Print distance matrix
                 print('\n\n\n')
-                print(distance_matrix)
+                print('penis')
 
                 # Check to see if the user closed the window
                 # Under GTK+ (Jetson Default), WND_PROP_VISIBLE does not work correctly. Under Qt it does
