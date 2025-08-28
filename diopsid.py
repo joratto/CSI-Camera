@@ -224,6 +224,7 @@ def get_distance_matrix(left_image, right_image, interocular_distance, pixel_ang
             distance_matrix[line][column] = [template_x, template_y, comparison_x, comparison_y, distance]
 
             template_top_left[0] += window_dims[0]
+            print('distance {}cm'.format(distance/10))
         template_top_left[1] += window_dims[1]
     
     return distance_matrix
