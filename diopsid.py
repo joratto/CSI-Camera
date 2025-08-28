@@ -119,8 +119,8 @@ epipolar_lines = scope_height // window_height
 columns = scope_width // window_width
 
 # display stuff only
-screen_width = 500
-screen_height = 500
+screen_width = 1920
+screen_height = 1080
 screen_ratio = (screen_width/camera_width, screen_height/camera_height)
 
 def read_pixel(frame, x, y):   
