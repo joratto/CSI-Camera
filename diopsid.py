@@ -303,10 +303,8 @@ def run_cameras():
                 right_image = cv2.cvtColor(right_image, cv2.COLOR_BGR2GRAY)
                 
                 # Draw scope boxes
-                #cv2.rectangle(left_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
-                #cv2.rectangle(right_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
-
-                cv2.rectangle(left_image, (0,0), (100,100), (255, 0, 0), 8)
+                cv2.rectangle(left_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
+                cv2.rectangle(right_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
 
                 # Get distance matrix
                 # distance_matrix = get_distance_matrix(left_image, right_image, interocular_distance, pixel_angular_width, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=True)
@@ -321,7 +319,7 @@ def run_cameras():
 
                 # Use numpy to place images next to each other
                 camera_images = np.hstack((left_image, right_image)) 
-                
+
                 if cv2.getWindowProperty(window_title, cv2.WND_PROP_AUTOSIZE) >= 0:
                     cv2.imshow(window_title, camera_images)
                 else:
