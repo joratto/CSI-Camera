@@ -301,9 +301,6 @@ def run_cameras():
 
                 left_image = cv2.cvtColor(left_image, cv2.COLOR_BGR2GRAY)
                 right_image = cv2.cvtColor(right_image, cv2.COLOR_BGR2GRAY)
-
-                # Use numpy to place images next to each other
-                camera_images = np.hstack((left_image, right_image)) 
                 
                 # Draw scope boxes
                 #cv2.rectangle(left_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
@@ -321,6 +318,10 @@ def run_cameras():
                 # Check to see if the user closed the window
                 # Under GTK+ (Jetson Default), WND_PROP_VISIBLE does not work correctly. Under Qt it does
                 # GTK - Substitute WND_PROP_AUTOSIZE to detect if window has been closed by user
+
+                # Use numpy to place images next to each other
+                camera_images = np.hstack((left_image, right_image)) 
+                
                 if cv2.getWindowProperty(window_title, cv2.WND_PROP_AUTOSIZE) >= 0:
                     cv2.imshow(window_title, camera_images)
                 else:
