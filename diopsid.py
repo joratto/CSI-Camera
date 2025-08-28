@@ -307,7 +307,14 @@ def run_cameras():
                 cv2.rectangle(right_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
 
                 # Get distance matrix
-                # distance_matrix = get_distance_matrix(left_image, right_image, interocular_distance, pixel_angular_width, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=True)
+                distance_matrix = get_distance_matrix(left_image, right_image, interocular_distance, pixel_angular_width, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=True)
+
+                dims = distance_matrix.shape
+                for i in range(dims[0]):
+                    for j in range(dims[1]):
+                        xL, yL, xR, yR, distance = distance_matrix[i][j]
+                        cv2.circle(left_image, center=(int(xL*screen_ratio[0]), int(yL*screen_ratio[1])), radius=int((1-distance/10000)*window_width), color=(255, 255, 255), thickness=-1)
+                        cv2.circle(right_image, center=(int(xR*screen_ratio[0]), int(yR*screen_ratio[1])), radius=int((1-distance/10000)*window_width), color=(255, 255, 255), thickness=-1)
 
                 # Print distance matrix
                 #print('\n\n\n')
