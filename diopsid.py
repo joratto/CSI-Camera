@@ -109,8 +109,8 @@ center_y = camera_height // 2
 window_width = 80 # (pixels)
 window_height = 80 # (pixels)
 
-scope_width = 800
-scope_height = 800
+scope_width = 400
+scope_height = 400
 
 scope_xlim = (center_x - scope_width//2, center_x + scope_width//2)
 scope_ylim = (center_y - scope_height//2, center_y + scope_height//2)
@@ -119,8 +119,8 @@ epipolar_lines = scope_height // window_height
 columns = scope_width // window_width
 
 # display stuff only
-screen_width = 1920
-screen_height = 1080
+screen_width = 500
+screen_height = 500
 screen_ratio = (screen_width/camera_width, screen_height/camera_height)
 
 def read_pixel(frame, x, y):   
@@ -306,15 +306,17 @@ def run_cameras():
                 camera_images = np.hstack((left_image, right_image)) 
                 
                 # Draw scope boxes
-                cv2.rectangle(left_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
-                cv2.rectangle(right_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
+                #cv2.rectangle(left_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
+                #cv2.rectangle(right_image, (int(scope_xlim[0]*screen_ratio[0]), int(scope_ylim[0]*screen_ratio[1])), (int(scope_xlim[1]*screen_ratio[0]), int(scope_ylim[1]*screen_ratio[1])), (255, 0, 0), 8)
+
+                cv2.rectangle(left_image, (0,0), (100,100), (255, 0, 0), 8)
 
                 # Get distance matrix
                 # distance_matrix = get_distance_matrix(left_image, right_image, interocular_distance, pixel_angular_width, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=True)
 
                 # Print distance matrix
-                print('\n\n\n')
-                print('penis')
+                #print('\n\n\n')
+                #print('penis')
 
                 # Check to see if the user closed the window
                 # Under GTK+ (Jetson Default), WND_PROP_VISIBLE does not work correctly. Under Qt it does
