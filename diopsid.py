@@ -119,8 +119,8 @@ epipolar_lines = scope_height // window_height
 columns = scope_width // window_width
 
 # display stuff only
-screen_width = 500
-screen_height = 500
+screen_width = 1920
+screen_height = 1080
 screen_ratio = (screen_width//camera_width, screen_height//camera_height)
 
 def read_pixel(frame, x, y):   
@@ -166,7 +166,7 @@ def get_SSD(template_window, comparison_window):
 
     return ssd
 
-def scan_epipolar_line(left_image, right_image, template_top_left, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=True):
+def scan_epipolar_line(left_image, right_image, template_top_left, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, yshift left_first=True):
     # window_top_left is [x, y] of the top left corner of the window providing the reference
     
     if left_first:
@@ -190,15 +190,21 @@ def scan_epipolar_line(left_image, right_image, template_top_left, window_dims=(
     return ssd_array, x_range
 
 def get_distance(ssd_array, x_range, interocular_distance, pixel_angular_width):
+    ssd_average = np.mean(ssd_array)
+    ssd_stdev = np.std(ssd_array)
+    ssd_threshold = ssd_average + 3*ssd_stdev # adding a "noise floor"
     ssd_min = min(ssd_array)
-    x_match = x_range[ssd_array.index(ssd_min)]
-    x_delta_array = np.arange(len(x_range))
-    x_delta = x_delta_array[x_range.index(x_match)] # this seems silly
-    theta = x_delta * pixel_angular_width
-    distance = interocular_distance / (2*np.tan(theta/2))
-    return distance, x_match
+    if ssd_min < ssd_threshold:
+        return 0, 0
+    else:
+        x_match = x_range[ssd_array.index(ssd_min)]
+        x_delta_array = np.arange(len(x_range))
+        x_delta = x_delta_array[x_range.index(x_match)] # this seems silly
+        theta = x_delta * pixel_angular_width
+        distance = interocular_distance / (2*np.tan(theta/2))
+        return distance, x_match
     
-def get_distance_matrix(left_image, right_image, interocular_distance, pixel_angular_width, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=True):
+def get_distance_matrix(left_image, right_image, interocular_distance, pixel_angular_width, window_dims=(window_width, window_height), scope_xlim=scope_xlim, scope_ylim=scope_ylim, yshift=0, left_first=True):
     distance_matrix = np.zeros((epipolar_lines, columns, 5))
     template_top_left = (scope_xlim[0], scope_ylim[0]+window_dims[1])
     for line in range(epipolar_lines):
@@ -218,7 +224,7 @@ def get_distance_matrix(left_image, right_image, interocular_distance, pixel_ang
 
 # TODO: 
 # - test that scope boxes are still plotting in the middle
-# - work out how to disregard insignificant SSD minima
+# - work out how to disregard insignificant SSD minima (untested)
 # - implement slight vertical shifts +/- epipolar lines to account for errors in the camera alignment
 # - implement a way to check SSD in different colour channels independently, and then combine
 
@@ -229,7 +235,7 @@ def gstreamer_pipeline(
     capture_height=camera_height,
     display_width=screen_width,
     display_height=screen_height,
-    framerate=30,
+    framerate=2, # frames per second
     flip_method=0,
 ):
     return (
@@ -263,7 +269,6 @@ def run_cameras():
             flip_method=0,
             display_width=screen_width,
             display_height=screen_height,
-            framerate=2, # frames per second
         )
     )
     left_camera.start()
@@ -277,7 +282,6 @@ def run_cameras():
             flip_method=0,
             display_width=screen_width,
             display_height=screen_height,
-            framerate=2, # frames per second
         )
     )
     right_camera.start()
