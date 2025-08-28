@@ -178,13 +178,13 @@ def scan_epipolar_line(left_image, right_image, template_top_left, window_dims=(
         image_with_window = right_image
         image_to_scan = left_image
 
-    template = read_window(image_with_window, window_top_left[0], window_top_left[1], window_dims=window_dims)
+    template = read_window(image_with_window, template_top_left[0], template_top_left[1], window_dims=window_dims)
     ssd_array = []
     x_range = range(scan_xlim[0], scan_xlim[1])
     #x_delta_array = x_range - scan_xlim[0]
     #x_delta_array = np.arange(len(x_range))
     for x in x_range:
-        comparison = read_window(image_to_scan, x, window_top_left[1], window_dims=window_dims)
+        comparison = read_window(image_to_scan, x, template_top_left[1], window_dims=window_dims)
         ssd = get_SSD(template, comparison)
         ssd_array.append(ssd)
     return ssd_array, x_range
