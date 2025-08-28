@@ -212,7 +212,9 @@ def get_distance_matrix(left_image, right_image, interocular_distance, pixel_ang
     distance_matrix = np.zeros((epipolar_lines, columns, 5))
     template_top_left = [scope_xlim[0], scope_ylim[0]+window_dims[1]]
     for line in range(epipolar_lines):
+        print('line ', line)
         for column in range(columns):
+            print('column ', column)
             ssd_array, x_range = scan_epipolar_line(left_image, right_image, template_top_left, window_dims=window_dims, scope_xlim=scope_xlim, scope_ylim=scope_ylim, left_first=left_first)
             distance, x_match = get_distance(ssd_array, x_range, interocular_distance, pixel_angular_width)
             template_x = template_top_left[0] + window_dims[0] // 2
